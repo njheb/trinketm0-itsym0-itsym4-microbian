@@ -1,7 +1,10 @@
 # microbian/Makefile
 # Copyright (c) 2020 J. M. Spivey
+ADAFRUIT_BOARD := trinketm0
+PROJECT := microbian
+BINDIR := ../build/$(ADAFRUIT_BOARD)/$(PROJECT)
 
-all: microbian.a startup.o
+all: $(BINDIR)/microbian.a $(BINDIR)/startup.o
 
 CPU = -mcpu=cortex-m0plus -mthumb
 #CFLAGS = -O -g -Wall -ffreestanding
@@ -25,25 +28,25 @@ INCLUDE = -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device
 
 
 #DRIVERS = timer.o serial.o i2c.o radio.o display.o
-DRIVERS = timer.o serial.o onboard_dotstar.o
+DRIVERS = $(BINDIR)/timer.o $(BINDIR)/serial.o $(BINDIR)/onboard_dotstar.o
 
 #BODGE = cortex_handlers.o delay.o temp-wiring.o arduino-startup.o polling-uart.o
 #moved code from temp-wiring.c and arduino-startup.c into startup.c
 #move cortex handler code to end of startup.c
 
 #tick_timer.o provides setup for timer.o driver
-BODGE = polling-uart.o delay.o minimal-analog.o tick_timer.o
+BODGE = $(BINDIR)/polling-uart.o $(BINDIR)/delay.o $(BINDIR)/minimal-analog.o $(BINDIR)/tick_timer.o
 #BODGE = polling-uart.o minimal-analog.o tick_timer.o
 
-MICROBIAN = microbian.o mpx-m0.o $(DRIVERS) lib.o $(BODGE)
+MICROBIAN = $(BINDIR)/microbian.o $(BINDIR)/mpx-m0.o $(DRIVERS) $(BINDIR)/lib.o $(BODGE)
 
-microbian.a: $(MICROBIAN)
+$(BINDIR)/microbian.a: $(MICROBIAN)
 	$(AR) cr $@ $^
 
-%.o: %.c
+$(BINDIR)/%.o: %.c
 	$(CC) $(CPU) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-%.o: %.s
+$(BINDIR)/%.o: %.s
 	$(AS) $(CPU) $< -o $@
 
 clean: force
