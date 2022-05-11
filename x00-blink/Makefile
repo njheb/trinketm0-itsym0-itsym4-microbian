@@ -2,6 +2,11 @@
 #all: $(BINDIR)/kernel.bin
 #all: ../build/trinketm0/x00-blink/blink.o
 
+TRINKET_TEST = `[ -d '/media/$(LOGNAME)/TRINKETBOOT' ] && echo "TRINKET"`
+ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
+ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
+
+
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
 
@@ -97,11 +102,12 @@ SORRY = echo "Please say 'make $@.hex' to compile '$@'"
 
 
 clean:
-	rm -f *.bin *.elf *.nm *.map *.o *elf.asm *.hexdump #2> /dev/null
+	rm -f $(BINDIR)/*.bin $(BINDIR)/*.elf $(BINDIR)/*.o \
+	*.nm *.map *elf.asm *.hexdump #2> /dev/null
 
 
 ultraclean: clean
-	rm -f ../microbian/*.a ../microbian/*.o
+	rm -f $(OSDIR)/*.a $(OSDIR)/*.o
 
 flash: kernel.bin
 	${BOSSAC} -i -d --port=${PORT} -i -e -w -v kernel.bin -R --offset 0x2000
