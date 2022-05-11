@@ -1,7 +1,26 @@
-all: kernel.bin
+#all: kernel.bin
+#all: $(BINDIR)/kernel.bin
+#all: ../build/trinketm0/x00-blink/blink.o
+
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+mkfile_dir := $(dir $(mkfile_path))
+
+getproject = $(lastword $(subst /, ,$1))
+PROJECT := $(call getproject,$(mkfile_dir))
+#try $(CURDIR)
+
+ADAFRUIT_BOARD = trinketm0
+#PROJECT := microbian
+BINDIR = ../build/$(ADAFRUIT_BOARD)/$(PROJECT)
+OSDIR = ../build/$(ADAFRUIT_BOARD)/microbian
+
+all: $(BINDIR)/kernel.bin
+#all: $(BINDIR)/kernel.elf #works
+#all: ../build/trinketm0/x00-blink/blink.o #works
+
 
 PORT=ttyACM0
-BOSSAC=/home/nick/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac
+BOSSAC=~/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac
 
 CC = arm-none-eabi-gcc
 CPU = -mcpu=cortex-m0plus -mthumb #microbian uses cortex-m0 not plus
@@ -38,36 +57,38 @@ NM = arm-none-eabi-nm
 vpath %.h ../microbian
 
 
-%.o: %.cpp
+$(BINDIR)/%.o: %.cpp
 	$(CC) $(CPU) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-%.o: %.c
+$(BINDIR)/%.o: %.c
+	echo $(PROJECT)
 	$(CC) $(CPU) $(CFLAGS) $(INCLUDE) -c $< -o $@
 
-%.o: %.s
+$(BINDIR)/%.o: %.s
 	$(AS) $(CPU) $< -o $@
 
-APP = blink.o force_bootloader.o
+APP = $(BINDIR)/blink.o $(BINDIR)/force_bootloader.o
 
-WORKAROUND = ../microbian/startup.o ../microbian/microbian.a
+WORKAROUND = $(OSDIR)/startup.o $(OSDIR)/microbian.a
 
 #note cortex_handlers.c temp-wiring.c arduino-startup.c merged into startup.c
 #less good for obviously showing copyright but all comments left intact inside startup.c
-%.elf: $(APP) $(WORKAROUND)
+$(BINDIR)/%.elf: $(APP) $(WORKAROUND)
 	$(CC) $(CPU) $(CFLAGS) -T ../variant-trinket_m0/microbian_flash_with_bootloader.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
 
 disasm:
-	${OBJDUMP} -d kernel.elf > kernel.elf.asm
-	${NM} kernel.elf > kernel.elf.nm
-	hexdump kernel.bin > kernel.bin.hexdump
+	${OBJDUMP} -d $(BINDIR)/kernel.elf > kernel.elf.asm
+	${NM} $(BINDIR)/kernel.elf > kernel.elf.nm
+	hexdump $(BINDIR)/kernel.bin > kernel.bin.hexdump
 
-%.bin: %.elf
+$(BINDIR)/%.bin: $(BINDIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 
-../microbian/microbian.a:
-	$(MAKE) -C $(@D) all
+$(OSDIR)/microbian.a:
+	$(MAKE) -C ../microbian all
+#	$(MAKE) -C $(@D) all
 
 # Nuke the default rules for building executables
 SORRY = echo "Please say 'make $@.hex' to compile '$@'"
@@ -90,4 +111,4 @@ flash: kernel.bin
 
 ###
 
-blink.o force_bootloader.o: microbian.h lib.h hardware.h
+$(BINDIR)/blink.o $(BINDIR)/force_bootloader.o: microbian.h lib.h hardware.h
