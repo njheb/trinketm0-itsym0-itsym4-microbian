@@ -1,3 +1,9 @@
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+mkfile_dir := $(dir $(mkfile_path))
+
+getproject = $(lastword $(subst /, ,$1))
+project := $(call getproject,$(mkfile_dir))
+
 VARIANT_PATH="FIX"
 M0_OFFSET := 0x2000
 M4_OFFSET := 0x4000
@@ -44,4 +50,9 @@ DO_:
 test:
 	echo $(BOSSAC_OFFSET)
 	echo $(VARIANT_PATH)
-
+	echo $(mkfile_path)
+	echo $(mkfile_dir)
+	echo $(MAKEFILE_LIST)
+	echo $(thing)
+	echo $(CURDIR)
+	echo $(project)
