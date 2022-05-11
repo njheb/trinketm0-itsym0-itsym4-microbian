@@ -24,7 +24,7 @@ CFLAGS= -Wall -g -nostartfiles -O -DF_CPU=48000000UL -ffreestanding \
 INCLUDE = -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL \
           -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL/samd21 \
           -I ~/.arduino15/packages/adafruit/tools/CMSIS/5.4.0/CMSIS/Core/Include \
-          -I ../variant-trinketm0 \
+          -I ../variant-trinket_m0 \
           -I ../microbian
 
 AS = arm-none-eabi-as
@@ -54,7 +54,7 @@ WORKAROUND = ../microbian/startup.o ../microbian/microbian.a
 #note cortex_handlers.c temp-wiring.c arduino-startup.c merged into startup.c
 #less good for obviously showing copyright but all comments left intact inside startup.c
 %.elf: $(APP) $(WORKAROUND)
-	$(CC) $(CPU) $(CFLAGS) -T ../variant-trinketm0/microbian_flash_with_bootloader.ld \
+	$(CC) $(CPU) $(CFLAGS) -T ../variant-trinket_m0/microbian_flash_with_bootloader.ld \
 		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
 	$(SIZE) $@
 
