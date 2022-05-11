@@ -1,0 +1,73 @@
+compare files and functions
+
+trinket			microbit code
+make ld compatible	BOOTLOADERMAGIC stuff needs care
+NOSPIN-maybe dotstar    remove display.c
+			remove i2c.c
+polling-uart.c		for bodged kprintf
+serial driver later	remove serial.c		
+timer is it needed yet  ???remove timer.c
+			remove radio.c
+hardware.h		major changes #include "sam.h" and then see
+lib.[ch]		hopefully portable
+microbian.[ch]		?check .ld
+
+
+mpx-m0.s rename, check svc_handler and pendsv_handler
+
+microbian
+yield will clash
+
+make spin an empty function, later dotstar flash blue?
+
+grep for
+/* serial.c */
+void serial_putc(char ch);
+char serial_getc(void);
+void serial_init(void);
+
+/* timer.c */
+void timer_delay(int msec);
+void timer_pulse(int msec);
+void timer_wait(void);
+unsigned timer_now(void);
+unsigned timer_micros(void);
+void timer_init(void);
+
+default_handler() for interrupts
+
+hardfault_handler()
+check how many exceptins ?16
+
+init() will clash
+yield() will clash only if USE_TINYUSB defined
+
+static void kprintf_setup() <- replace with samd21 code
+static void kputc(char ch) <- replace with samd21 code
+
+timer.c uses timer1 = 16bit leaves timer0 which is 32bit free
+but note there is an ifdef of SYSTICK so check up on that
+
+SYSTICK not defined
+
+
+looking at trinketm0-microbian
+
+Reset_Handler		- section setup, SystemInit, main
+SVC_Handler    weak alias dummy
+PendSV_Handler weak alias dummy
+SysTick_Handler		- calls sysTickHook(), can run SysTick_DefaultHandler
+USB_Handler    weak no alias  - if (usb_isr) usb_isr();
+TC5_Handler    weak no alias - used in Tone.cpp
+
+note SysTick_DefaultHandler inc _ulTickCount and call tickReset() <- to do with BOOTLOADERMAGIC i think
+
+/* Initialize segments */
+extern uint32_t __etext;
+extern uint32_t __data_start__;
+extern uint32_t __data_end__;
+extern uint32_t __bss_start__;
+extern uint32_t __bss_end__;
+extern uint32_t __StackTop;
+
+section ".isr_vector"

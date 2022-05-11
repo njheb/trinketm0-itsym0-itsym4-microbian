@@ -1,0 +1,52 @@
+/* Addresses set by the linker microbit */
+extern unsigned char __data_start[], __data_end[],
+    __bss_start[], __bss_end[], __etext[], __stack[];
+
+/* Initialize segments arduino*/
+extern uint32_t __etext;
+extern uint32_t __data_start__;
+extern uint32_t __data_end__;
+extern uint32_t __bss_start__;
+extern uint32_t __bss_end__;
+extern uint32_t __StackTop;
+
+
+
+section .isr_vectors -> .vectors
+__StackTop	-> __stack
+Reset_Handler	-> __reset
+
+SVC_Handler	-> svc_handler
+PendSV_Handler	-> pendsv_handler
+SysTick_Handler	-> systick_handler
+
+there are 29 config interrupts on nrf51 vsn
+          32 config int slots for samd21 vsn
+
+
+__reset		startup.c		; clocksetup, copy sections, call __start
+Reset_Handler	cortex_handlers.c	; copy sec, SystemInit, call main (main in blink)
+
+svc_handler	mpx-m0.s		; system call 
+SVC_Handler	cortex_handlers.c	; weak alias Dummy
+
+pendsv_handler	mpx-m0.s		; context switch
+PendSV_Handler  cortex_handlers.c	; weak alias Dummy
+
+move cutdown cortex_handlers to startup.c
+
+need to investigate
+irq_priority() for compatability
+
+#ifdef NOTYET around _DEVICE _i2c and _timer
+
+delay_loop() would need tuning for 16MHz -> 48Mhz change
+
+spin() needs gutting, flash BUILTIN_LED probably DOTSTAR later
+
+maybe a choice between BKPT "..dummy.." or default_handler "spin"
+
+
+sort out systick_handler
+
+sort out TC5_Handler to do with Tone.cpp 
