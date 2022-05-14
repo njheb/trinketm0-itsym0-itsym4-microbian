@@ -1,120 +1,65 @@
-#all: kernel.bin
-#all: $(BINDIR)/kernel.bin
-#all: ../build/trinketm0/x00-blink/blink.o
-
-TRINKET_TEST = `[ -d '/media/$(LOGNAME)/TRINKETBOOT' ] && echo "TRINKET"`
-ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
-ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
-
-
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
 
 getproject = $(lastword $(subst /, ,$1))
-PROJECT := $(call getproject,$(mkfile_dir))
-#try $(CURDIR)
+project := $(call getproject,$(mkfile_dir))
 
-ADAFRUIT_BOARD = trinketm0
-#PROJECT := microbian
-BINDIR = ../build/$(ADAFRUIT_BOARD)/$(PROJECT)
-OSDIR = ../build/$(ADAFRUIT_BOARD)/microbian
+VARIANT_PATH="FIX"
+M0_OFFSET := 0x2000
+M4_OFFSET := 0x4000
 
-all: $(BINDIR)/kernel.bin
-#all: $(BINDIR)/kernel.elf #works
-#all: ../build/trinketm0/x00-blink/blink.o #works
+#BOSSAC_OFFSET=$(M0_OFFSET)
 
+.PHONEY: flash clean
 
-PORT=ttyACM0
-BOSSAC=~/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac
+all: DO_$(ADAFRUIT_BOARD)
+	@date
+	@echo "tail"
 
-CC = arm-none-eabi-gcc
-CPU = -mcpu=cortex-m0plus -mthumb #microbian uses cortex-m0 not plus
-#CFLAGS = -O -g -Wall -ffreestanding
-#CRELEASEFLAGS = -O -Wall -ffreestanding
-#CFLAGS=-g -nostartfiles -O0 -DF_CPU=48000000UL -mcpu=cortex-m0plus -mthumb
-
-#CFLAGS=-g -nostartfiles -O0 -DF_CPU=48000000UL -mcpu=cortex-m0plus -mthumb \
-#-D__SAMD21E18A__ -DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS -DUSB_VID=0x239A -DUSB_PID=0x801e \
-#-DUSBCON -DUSB_CONFIG_POWER=100 "-DUSB_MANUFACTURER=\"Adafruit\"" "-DUSB_PRODUCT=\"Trinket M0\"" -DUSE_TINYUSB
-
-#remove -DUSE_TINYUSB for now
-CFLAGS= -Wall -g -nostartfiles -O -DF_CPU=48000000UL -ffreestanding \
--D__SAMD21E18A__ -DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS -DUSB_VID=0x239A -DUSB_PID=0x801e \
--DUSBCON -DUSB_CONFIG_POWER=100 "-DUSB_MANUFACTURER=\"Adafruit\"" "-DUSB_PRODUCT=\"Trinket M0\""
-
-#LFLAGS=-Wl,-T,trinketm0.ld
-
-#INCLUDE = -I ../microbian
-INCLUDE = -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL \
-          -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL/samd21 \
-          -I ~/.arduino15/packages/adafruit/tools/CMSIS/5.4.0/CMSIS/Core/Include \
-          -I ../variant-trinket_m0 \
-          -I ../microbian
-
-AS = arm-none-eabi-as
-LD = arm-none-eabi-ld
-SIZE = arm-none-eabi-size
-OBJCOPY = arm-none-eabi-objcopy
-OBJDUMP = arm-none-eabi-objdump
-NM = arm-none-eabi-nm
+#ifeq ( $(ADAFRUIT_BOARD), "TRINKETM0" )
+#	VARIANT_PATH="variant-trinket_m0"
+#else
+#	ifeq ( $(ADAFRUIT_BOARD), "ITSYM0" )
+#		VARIANT_PATH="variant-itsybitsy_m0"
+#	else
+#		ifeq ( $(ADAFRUIT_BOARD), "ITSYM4" )
+#			VARIANT_PATH="variant-itsybitsy_m4"
+#		else
+#			@echo "NO \$ADAFRUIT_BOARD defined"
+#		endif
+#	endif
+#endif
 
 
-vpath %.h ../microbian
+DO_trinket_m0:
+	echo "Trinket_m0"
+	make -f $(project).mk BOSSAC_OFFSET=$(M0_OFFSET) VARIANT_PATH="variant-trinket_m0" $(MAKECMDGOALS)
 
+DO_itsy_m0:
+	@echo "ItsyBitsy_m0"
+	make -f $(project).mk BOSSAC_OFFSET=$(M0_OFFSET) VARIANT_PATH="variant-itsybitsy_m0" $(MAKECMDGOALS)
 
-$(BINDIR)/%.o: %.cpp
-	$(CC) $(CPU) $(CFLAGS) $(INCLUDE) -c $< -o $@
+DO_itsy_m4:
+	@echo "ItsyBitsy_m4"
+	make -f $(project).mk BOSSAC_OFFSET=$(M4_OFFSET) VARIANT_PATH="variant-itsybitsy_m4" $(MAKECMDGOALS)
 
-$(BINDIR)/%.o: %.c
-	echo $(PROJECT)
-	$(CC) $(CPU) $(CFLAGS) $(INCLUDE) -c $< -o $@
+DO_:
+	@echo "'export ADAFRUIT_BOARD=trinket_m0' for example and re-run make"
+	@echo "alternatives are: trinket_m0, itsy_m0, itsy_m4"
+#	@exit 1
 
-$(BINDIR)/%.o: %.s
-	$(AS) $(CPU) $< -o $@
+test:
+	echo $(BOSSAC_OFFSET)
+	echo $(VARIANT_PATH)
+	echo $(mkfile_path)
+	echo $(mkfile_dir)
+	echo $(MAKEFILE_LIST)
+	echo $(thing)
+	echo $(CURDIR)
+	echo $(project)
 
-APP = $(BINDIR)/blink.o $(BINDIR)/force_bootloader.o
-
-WORKAROUND = $(OSDIR)/startup.o $(OSDIR)/microbian.a
-
-#note cortex_handlers.c temp-wiring.c arduino-startup.c merged into startup.c
-#less good for obviously showing copyright but all comments left intact inside startup.c
-$(BINDIR)/%.elf: $(APP) $(WORKAROUND)
-	$(CC) $(CPU) $(CFLAGS) -T ../variant-trinket_m0/microbian_flash_with_bootloader.ld \
-		$^ -nostdlib -lgcc -lc -o $@ -Wl,-Map,$*.map
-	$(SIZE) $@
-
-disasm:
-	${OBJDUMP} -d $(BINDIR)/kernel.elf > kernel.elf.asm
-	${NM} $(BINDIR)/kernel.elf > kernel.elf.nm
-	hexdump $(BINDIR)/kernel.bin > kernel.bin.hexdump
-
-$(BINDIR)/%.bin: $(BINDIR)/%.elf
-	$(OBJCOPY) -O binary $< $@
-
-$(OSDIR)/microbian.a:
-	$(MAKE) -C ../microbian all
-#	$(MAKE) -C $(@D) all
-
-# Nuke the default rules for building executables
-SORRY = echo "Please say 'make $@.hex' to compile '$@'"
-%: %.s; @$(SORRY)
-%: %.o; @$(SORRY)
-
+flash:
+	@true
 
 clean:
-	rm -f $(BINDIR)/*.bin $(BINDIR)/*.elf $(BINDIR)/*.o \
-	*.nm *.map *elf.asm *.hexdump #2> /dev/null
-
-
-ultraclean: clean
-	rm -f $(OSDIR)/*.a $(OSDIR)/*.o
-
-flash: kernel.bin
-	${BOSSAC} -i -d --port=${PORT} -i -e -w -v kernel.bin -R --offset 0x2000
-
-# Don't delete intermediate files
-.SECONDARY:
-
-###
-
-$(BINDIR)/blink.o $(BINDIR)/force_bootloader.o: microbian.h lib.h hardware.h
+	@true
