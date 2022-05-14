@@ -73,9 +73,12 @@ NM = arm-none-eabi-nm
 
 vpath %.h ../microbian
 
-.PHONEY: all
+all: os
+	$(MAKE) app
 
-all: $(BINDIR)/kernel.bin
+os: $(OSDIR)/microbian.a
+
+app: $(BINDIR)/kernel.bin
 
 
 $(BINDIR)/%.o: %.cpp
@@ -106,7 +109,7 @@ disasm:
 $(BINDIR)/%.bin: $(BINDIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 
-$(OSDIR)/microbian.a:  # re-calculate VARIANT_PATH in submake
+$(OSDIR)/microbian.a:
 	$(MAKE) -C ../microbian all ADAFRUIT_BOARD=$(ADAFRUIT_BOARD)
 #	$(MAKE) -C $(@D) all
 
