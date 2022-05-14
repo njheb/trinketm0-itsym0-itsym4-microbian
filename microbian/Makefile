@@ -5,6 +5,7 @@ PROJECT := microbian
 BINDIR := ../build/$(ADAFRUIT_BOARD)/$(PROJECT)
 
 all: $(BINDIR)/microbian.a $(BINDIR)/startup.o
+	echo $(BINDIR)
 
 VARIANT_PATH = ../variant-$(ADAFRUIT_BOARD)
 
@@ -24,8 +25,6 @@ AR = arm-none-eabi-ar
 #INCLUDE = -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL \
 #          -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL/samd21 \
 #          -I ~/.arduino15/packages/adafruit/tools/CMSIS/5.4.0/CMSIS/Core/Include \
-
-#INCLUDE = -I "bug or i don't understand"
 
 include $(VARIANT_PATH)/config/include.mk
 
