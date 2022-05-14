@@ -92,7 +92,7 @@ $(BINDIR)/%.bin: $(BINDIR)/%.elf
 	$(OBJCOPY) -O binary $< $@
 
 $(OSDIR)/microbian.a:
-	$(MAKE) -C ../microbian all
+	$(MAKE) -C ../microbian all ADAFRUIT_BOARD=$(ADAFRUIT_BOARD) VARIANT_PATH=$(VARIANT_PATH)
 #	$(MAKE) -C $(@D) all
 
 # Nuke the default rules for building executables

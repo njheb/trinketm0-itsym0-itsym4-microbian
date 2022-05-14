@@ -4,7 +4,6 @@ mkfile_dir := $(dir $(mkfile_path))
 getproject = $(lastword $(subst /, ,$1))
 project := $(call getproject,$(mkfile_dir))
 
-VARIANT_PATH="FIX"
 M0_OFFSET := 0x2000
 M4_OFFSET := 0x4000
 
@@ -44,8 +43,9 @@ DO_itsy_m4:
 	make -f $(project).mk BOSSAC_OFFSET=$(M4_OFFSET) VARIANT_PATH="variant-itsybitsy_m4" $(MAKECMDGOALS)
 
 DO_:
-	@echo "'export ADAFRUIT_BOARD=trinket_m0' for example and re-run make"
-	@echo "alternatives are: trinket_m0, itsy_m0, itsy_m4"
+	@echo "'export ADAFRUIT_BOARD=trinket_m0' for example and re-run make all"
+	@echo "or make ADAFUIT_BOARD=trinket_m0 clean all"
+	@echo "board alternatives are: trinket_m0, itsy_m0, itsy_m4"
 #	@exit 1
 
 test:
