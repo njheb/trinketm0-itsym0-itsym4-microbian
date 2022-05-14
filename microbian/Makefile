@@ -6,11 +6,15 @@ BINDIR := ../build/$(ADAFRUIT_BOARD)/$(PROJECT)
 
 all: $(BINDIR)/microbian.a $(BINDIR)/startup.o
 
-CPU = -mcpu=cortex-m0plus -mthumb
-#CFLAGS = -O -g -Wall -ffreestanding
-CFLAGS = -Wall -g -nostartfiles -O -DF_CPU=48000000UL -ffreestanding \
--D__SAMD21E18A__ -DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS
+VARIANT_PATH = ../variant-$(ADAFRUIT_BOARD)
 
+#CPU = -mcpu=cortex-m0plus -mthumb
+include $(VARIANT_PATH)/config/cpu.mk
+
+
+#CFLAGS = -Wall -g -nostartfiles -O -DF_CPU=48000000UL -ffreestanding \
+#-D__SAMD21E18A__ -DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS
+include $(VARIANT_PATH)/config/cflags.mk
 
 
 CC = arm-none-eabi-gcc
@@ -20,12 +24,12 @@ AR = arm-none-eabi-ar
 #INCLUDE = -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL \
 #          -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL/samd21 \
 #          -I ~/.arduino15/packages/adafruit/tools/CMSIS/5.4.0/CMSIS/Core/Include \
-#          -I ./variant-trinketm0
-INCLUDE = -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL \
-          -I ~/.arduino15/packages/adafruit/tools/CMSIS-Atmel/1.2.2/CMSIS/Device/ATMEL/samd21 \
-          -I ~/.arduino15/packages/adafruit/tools/CMSIS/5.4.0/CMSIS/Core/Include \
-          -I ../$(VARIANT_PATH)
 
+#INCLUDE = -I "bug or i don't understand"
+
+include $(VARIANT_PATH)/config/include.mk
+
+INCLUDE +=  -I $(VARIANT_PATH)
 
 #DRIVERS = timer.o serial.o i2c.o radio.o display.o
 DRIVERS = $(BINDIR)/timer.o $(BINDIR)/serial.o $(BINDIR)/onboard_dotstar.o
@@ -38,7 +42,13 @@ DRIVERS = $(BINDIR)/timer.o $(BINDIR)/serial.o $(BINDIR)/onboard_dotstar.o
 BODGE = $(BINDIR)/polling-uart.o $(BINDIR)/delay.o $(BINDIR)/minimal-analog.o $(BINDIR)/tick_timer.o
 #BODGE = polling-uart.o minimal-analog.o tick_timer.o
 
-MICROBIAN = $(BINDIR)/microbian.o $(BINDIR)/mpx-m0.o $(DRIVERS) $(BINDIR)/lib.o $(BODGE)
+ifeq ($(ADAFRUIT_BOARD),itsy_m4)
+	CONTEXT_ETC := mpx-m4.o
+else
+	CONTEXT_ETC := mpx-m0.o
+endif
+
+MICROBIAN = $(BINDIR)/microbian.o $(BINDIR)/$(CONTEXT_ETC) $(DRIVERS) $(BINDIR)/lib.o $(BODGE)
 
 $(BINDIR)/microbian.a: $(MICROBIAN)
 	$(AR) cr $@ $^
@@ -50,10 +60,10 @@ $(BINDIR)/%.o: %.s
 	$(AS) $(CPU) $< -o $@
 
 clean: force
-	rm -f microbian.a *.o
+	rm -f $(BINDIR)/microbian.a $(BINDIR)/*.o
 
 force:
 
 ###
 
-$(MICROBIAN) startup.o: microbian.h hardware.h lib.h
+$(MICROBIAN) $(BINDIR)/startup.o: microbian.h hardware.h lib.h
