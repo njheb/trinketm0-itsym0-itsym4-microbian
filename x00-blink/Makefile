@@ -76,9 +76,17 @@ vpath %.h ../microbian
 all: os
 	$(MAKE) app
 
-os: $(OSDIR)/microbian.a
+os: $(OSDIR) $(OSDIR)/microbian.a
 
-app: $(BINDIR)/kernel.bin
+app: $(BINDIR) $(BINDIR)/kernel.bin
+
+
+$(BINDIR):
+	mkdir -p $(BINDIR)
+
+$(OSDIR):
+	mkdir -p $(OSDIR)
+
 
 
 $(BINDIR)/%.o: %.cpp

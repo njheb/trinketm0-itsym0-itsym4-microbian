@@ -80,9 +80,6 @@ os: $(OSDIR) $(OSDIR)/microbian.a
 
 app: $(BINDIR) $(BINDIR)/kernel.bin
 
-#
-#all: $(BINDIR) $(BINDIR)/kernel.bin
-#
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
