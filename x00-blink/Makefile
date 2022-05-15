@@ -1,10 +1,25 @@
-#all: kernel.bin
-#all: $(BINDIR)/kernel.bin
-#all: ../build/trinketm0/x00-blink/blink.o
+#TRINKET_TEST = `[ -d '/media/$(LOGNAME)/TRINKETBOOT' ] && echo "TRINKET"`
+#ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
+#ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
 
-TRINKET_TEST = `[ -d '/media/$(LOGNAME)/TRINKETBOOT' ] && echo "TRINKET"`
-ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
-ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
+UF2TOOL:=python3 ../uf2-util/uf2conv.py
+ifeq ($(ADAFRUIT_BOARD),itsy_m4)
+UF2_OFFSET:=0x4000
+UF2_FAMILY:=SAMD51
+UPLOAD_PATH:=/media/$(LOGNAME)/ITSYM4BOOT
+else
+UF2_OFFSET:=0x2000
+UF2_FAMILY:=SAMD21
+ifeq ($(ADAFRUIT_BOARD),itsy_m0)
+UPLOAD_PATH:=/media/$(LOGNAME)/ITSYBOOT
+else
+ifeq ($(ADAFRUIT_BOARD),trinket_m0)
+UPLOAD_PATH:=/media/$(LOGNAME)/TRINKETBOOT
+else
+UPLOAD_PATH:=/dev/null
+endif
+endif
+endif
 
 
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -128,15 +143,25 @@ SORRY = echo "Please say 'make $@.hex' to compile '$@'"
 
 
 clean:
-	rm -f $(BINDIR)/*.bin $(BINDIR)/*.elf $(BINDIR)/*.o \
+	rm -f $(BINDIR)/*.bin $(BINDIR)/*.elf $(BINDIR)/*.o $(BINDIR)/*.uf2 \
 	*.nm *.map *elf.asm *.hexdump #2> /dev/null
 
 
 ultraclean: clean
 	rm -f $(OSDIR)/*.a $(OSDIR)/*.o
 
-flash: kernel.bin
-	${BOSSAC} -i -d --port=${PORT} -i -e -w -v kernel.bin -R --offset $(BOSSAC_OFFSET)
+flash: $(BINDIR)/kernel.bin
+	${BOSSAC} -i -d --port=${PORT} -i -e -w -v $(BINDIR)/kernel.bin -R --offset $(BOSSAC_OFFSET)
+
+
+uf2: $(BINDIR)/kernel.bin
+	$(UF2TOOL) --base=$(UF2_OFFSET) --family $(UF2_FAMILY) --convert --output $(BINDIR)/$(PROJECT).uf2 $(BINDIR)/kernel.bin
+
+info: uf2
+	$(UF2TOOL) $(BINDIR)/$(PROJECT).uf2
+
+upload: $(BINDIR)/$(PROJECT).uf2
+	cp $(BINDIR)/$(PROJECT).uf2 $(UPLOAD_PATH)
 
 # Don't delete intermediate files
 .SECONDARY:
