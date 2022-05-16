@@ -2,26 +2,6 @@
 #ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
 #ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
 
-UF2TOOL:=python3 ../uf2-util/uf2conv.py
-ifeq ($(ADAFRUIT_BOARD),itsy_m4)
-UF2_OFFSET:=0x4000
-UF2_FAMILY:=SAMD51
-UPLOAD_PATH:=/media/$(LOGNAME)/ITSYM4BOOT
-else
-UF2_OFFSET:=0x2000
-UF2_FAMILY:=SAMD21
-ifeq ($(ADAFRUIT_BOARD),itsy_m0)
-UPLOAD_PATH:=/media/$(LOGNAME)/ITSYBOOT
-else
-ifeq ($(ADAFRUIT_BOARD),trinket_m0)
-UPLOAD_PATH:=/media/$(LOGNAME)/TRINKETBOOT
-else
-UPLOAD_PATH:=/dev/null
-endif
-endif
-endif
-
-
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
 
@@ -36,9 +16,9 @@ OSDIR = ../build/$(ADAFRUIT_BOARD)/microbian
 
 VARIANT_PATH := ../variant-$(ADAFRUIT_BOARD)
 
-#all: $(BINDIR)/kernel.elf #works
-#all: ../build/trinketm0/x00-blink/blink.o #works
+UF2TOOL:=python3 ../uf2-util/uf2conv.py
 
+include $(VARIANT_PATH)/config/upload.mk
 
 PORT=ttyACM0
 BOSSAC=~/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac
