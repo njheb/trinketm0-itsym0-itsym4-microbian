@@ -5,7 +5,6 @@
 #ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
 #ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
 
-
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir := $(dir $(mkfile_path))
 
@@ -20,9 +19,9 @@ OSDIR = ../build/$(ADAFRUIT_BOARD)/microbian
 
 VARIANT_PATH := ../variant-$(ADAFRUIT_BOARD)
 
-#all: $(BINDIR)/kernel.elf #works
-#all: ../build/trinketm0/x00-blink/blink.o #works
+UF2TOOL:=python3 ../uf2-util/uf2conv.py
 
+include $(VARIANT_PATH)/config/upload.mk
 
 PORT=ttyACM0
 BOSSAC=~/.arduino15/packages/adafruit/tools/bossac/1.8.0-48-gb176eee/bossac
@@ -127,15 +126,25 @@ SORRY = echo "Please say 'make $@.hex' to compile '$@'"
 
 
 clean:
-	rm -f $(BINDIR)/*.bin $(BINDIR)/*.elf $(BINDIR)/*.o \
+	rm -f $(BINDIR)/*.bin $(BINDIR)/*.elf $(BINDIR)/*.o $(BINDIR)/*.uf2 \
 	*.nm *.map *elf.asm *.hexdump #2> /dev/null
 
 
 ultraclean: clean
 	rm -f $(OSDIR)/*.a $(OSDIR)/*.o
 
-flash: kernel.bin
-	${BOSSAC} -i -d --port=${PORT} -i -e -w -v kernel.bin -R --offset $(BOSSAC_OFFSET)
+flash: $(BINDIR)/kernel.bin
+	${BOSSAC} -i -d --port=${PORT} -i -e -w -v $(BINDIR)/kernel.bin -R --offset $(BOSSAC_OFFSET)
+
+
+uf2: $(BINDIR)/kernel.bin
+	$(UF2TOOL) --base=$(UF2_OFFSET) --family $(UF2_FAMILY) --convert --output $(BINDIR)/$(PROJECT).uf2 $(BINDIR)/kernel.bin
+
+info: uf2
+	$(UF2TOOL) $(BINDIR)/$(PROJECT).uf2
+
+upload: $(BINDIR)/$(PROJECT).uf2
+	cp $(BINDIR)/$(PROJECT).uf2 $(UPLOAD_PATH)
 
 # Don't delete intermediate files
 .SECONDARY:

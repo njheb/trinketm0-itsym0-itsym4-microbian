@@ -1,3 +1,6 @@
+#possible extra checks if using bossac
+#instead switch to uf2 upload for use in public as prefered method
+
 #TRINKET_TEST = `[ -d '/media/$(LOGNAME)/TRINKETBOOT' ] && echo "TRINKET"`
 #ITSY_M0_TEST = `[ -d '/media/$(LOGNAME)/ITSYBOOT' ] && echo "ITSYm0"`
 #ITSY_M4_TEST = `[ -d '/media/$(LOGNAME)/ITSYM4BOOT' ] && echo "ITSYm4"`
