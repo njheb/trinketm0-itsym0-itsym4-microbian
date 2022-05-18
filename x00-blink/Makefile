@@ -140,9 +140,6 @@ flash: $(BINDIR)/kernel.bin
 uf2: $(BINDIR)/kernel.bin
 	$(UF2TOOL) --base=$(UF2_OFFSET) --family $(UF2_FAMILY) --convert --output $(BINDIR)/$(PROJECT).uf2 $(BINDIR)/kernel.bin
 
-info: $(BINDIR)/$(PROJECT).uf2
-	$(UF2TOOL) --info $(BINDIR)/$(PROJECT).uf2
-
 upload: $(BINDIR)/$(PROJECT).uf2
 	cp $(BINDIR)/$(PROJECT).uf2 $(UPLOAD_PATH)
 
