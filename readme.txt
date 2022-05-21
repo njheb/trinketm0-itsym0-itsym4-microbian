@@ -1,7 +1,12 @@
 Microbian nrf51/52 ported to Adafruit SAMD21/51 (early work)
 ============================================================
 
-Supported Boards so far: Trinket_m0, ItsyBitsy_m0, ItsyBitsy_m4
+For the original BBC microbit version information please see: 
+	https://spivey.oriel.ox.ac.uk/baremetal/Bare_metal_micro:bit
+	https://github.com/Spivoxity/microbian
+	https://spivey.oriel.ox.ac.uk/digisys/Lecture_notes
+
+Supported Boards so far in this port: Trinket_m0, ItsyBitsy_m0, ItsyBitsy_m4
 
 Up until this point there were 3 parallel trees. Most development was for
 trinket_m0 next came itsy_m0 and finally itsy_m4.
@@ -28,13 +33,14 @@ The trinketm0-tinyusb tree is slightly earlier than the combined tree.
 It has just enough work done to get a quick and dirty CDC port running as a microbian device.
 As it is derived from Adafruit-TinyUsb library rather than tinyusb it incorporates C++ and currently pulls in lots of extra code.
 
-I did my work on AMD64 Ubuntu 18.04.
+I did my work on AMD64 Ubuntu 18.04. This release has been tested with Raspberry pi 4 using pre-installed arm-none-eabi-* tools.
+Please follow toolchain install instructions from https://spivey.oriel.ox.ac.uk/baremetal/Appendix_B:_Software_setup 
 
-Watch out for gpio pin numbering having divorced the code from its arduino variant provided pin configoration info struct. So far where 
+Watch out for gpio pin numbering, having divorced the code from it's arduino variant provided pin configoration info struct. So far where 
 necessary I have put in adhoc code to vary the port based on pin number where pins are assigned as n=(port*32)+gpio_bit. 
 A proper scheme is needed.
 
-To use:
+To use: (for the combined tree)
 =======
 
 export ADAFRUIT_BOARD=<BOARD>
