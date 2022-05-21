@@ -88,7 +88,7 @@ int count = 100;
 #ifndef WITHOUT_SAM_H
 uint32_t port = 0;
 const uint32_t pin = PIN_REAL_LED;
-const uint32_t pinMask = (1ul << pin);
+const uint32_t pinMask = (1ul << PIN_REAL_LED);
 #endif
 
 void test_taskA(int arg)
