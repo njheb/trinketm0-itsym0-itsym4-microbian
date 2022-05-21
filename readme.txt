@@ -30,7 +30,12 @@ As it is derived from Adafruit-TinyUsb library rather than tinyusb it incorporat
 
 I did my work on AMD64 Ubuntu 18.04.
 
+Watch out for gpio pin numbering having divorced the code from its arduino variant provided pin configoration info struct. So far where 
+necessary I have put in adhoc code to vary the port based on pin number where pins are assigned as n=(port*32)+gpio_bit. 
+A proper scheme is needed.
+
 To use:
+=======
 
 export ADAFRUIT_BOARD=<BOARD>
 where <BOARD> is one of "trinket_m0", "itsy_m0" or "itsy_m4" without quotes.
@@ -60,14 +65,30 @@ combined tree.
 There is plenty to do in cleaning up what I have so far, but I have pulled eveything together before I pause 
 development. 
 
-If you want to fork the repository and improve things.
-
 Footnote:
-Please follow https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/arduino-ide-setup instructions to
-install Arduino IDE and board support packages.
+Please follow https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/arduino-ide-setup  instructions 
+to install Arduino IDE and board support packages.
 
 After installing arduino ide and adafruit packages see ~/.arduino15/packages/adafruit/hardware/samd/1.7.10/ for
 information and code, especially ~/.arduino15/packages/adafruit/hardware/samd/1.7.10/cores
 
+For raspberry pi install
+visit https://www.arduino.cc/en/software
+pick Linux ARM 32 bits or 64bits from download options as required
 
+once downloaded assuming 32bits arm download
+tar xf arduino-1.8.19-linuxarm.tar.xz
+cd arduino-1.8.19
+sudo sh install.sh
+arduino
 
+"in File>preferences set Additional Boards Manager URLs to"
+https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
+
+"go to Board manager, scroll down and find Adafruit SAMD Boards"
+"select install 1.7.10"
+
+After installation of boards it is suggested best practice to close and reopen arduino if you want to 
+try out arduino examples before moving on to using the rudimentary SAMD port of microbian using Makefiles.
+
+See To use: above.
