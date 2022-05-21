@@ -10,7 +10,9 @@ They have now been combined into a single tree. The code is derived from Adafrui
 I don't intend to replace the CMSIS code to make it much more like the nrf51/52 trees.
 
 You will need to install an arduino IDE to have access to CMSIS include files and the 
-Adafruit SAMD board packages to get hold of the source code that I worked from. See footnote for path.
+Adafruit SAMD board packages to get hold of the source code that I worked from. See footnote for path and hyperlink.
+Arduino IDE version was 1.8.19, 
+
 
 Only enough analog setup is done to allow compilation of SAMD51. 
 
@@ -61,6 +63,9 @@ development.
 If you want to fork the repository and improve things.
 
 Footnote:
+Please follow https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino/arduino-ide-setup instructions to
+install Arduino IDE and board support packages.
+
 After installing arduino ide and adafruit packages see ~/.arduino15/packages/adafruit/hardware/samd/1.7.10/ for
 information and code, especially ~/.arduino15/packages/adafruit/hardware/samd/1.7.10/cores
 
