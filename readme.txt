@@ -8,6 +8,22 @@ For the original BBC microbit version information please see:
 
 Supported Boards so far in this port: Trinket_m0, ItsyBitsy_m0, ItsyBitsy_m4
 
+For overview of boards see:
+	https://learn.adafruit.com/introducing-adafruit-itsybitsy-m4
+	https://learn.adafruit.com/introducing-itsy-bitsy-m0
+	https://learn.adafruit.com/adafruit-trinket-m0-circuitpython-arduino
+
+pinout diagrams:
+	https://github.com/adafruit/Adafruit-ItsyBitsy-M0-PCB/blob/master/Adafruit%20ItsyBitsy%20M0%20pinout.pdf
+	https://github.com/adafruit/Adafruit-Trinket-M0-PCB/blob/master/Adafruit%20Trinket%20M0%20pinout.pdf
+	ItsyBitsy_m4 appears not to have a comparable diagram.
+
+datasheets:
+	https://www.datasheets.com/en/part-details/atsamd21g18a-au-microchip-technology-60818854#datasheet
+	https://www.microchip.com/sitesearch/search/All/ATSAMD51G19A
+
+The Itsy boards have the SWD interface broken out onto header pins.
+
 Up until this point there were 3 parallel trees. Most development was for
 trinket_m0 next came itsy_m0 and finally itsy_m4.
 
@@ -36,7 +52,7 @@ As it is derived from Adafruit-TinyUsb library rather than tinyusb it incorporat
 I did my work on AMD64 Ubuntu 18.04. This release has been tested with Raspberry pi 4 using pre-installed arm-none-eabi-* tools.
 Please follow toolchain install instructions from https://spivey.oriel.ox.ac.uk/baremetal/Appendix_B:_Software_setup 
 
-Watch out for gpio pin numbering, having divorced the code from it's arduino variant provided pin configoration info struct. So far where 
+Watch out for gpio pin numbering, having divorced the code from it's arduino variant provided pin config struct. So far where 
 necessary I have put in adhoc code to vary the port based on pin number where pins are assigned as n=(port*32)+gpio_bit. 
 A proper scheme is needed.
 
@@ -97,4 +113,4 @@ https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
 After installation of boards it is suggested best practice to close and reopen arduino if you want to 
 try out arduino examples before moving on to using the rudimentary SAMD port of microbian using Makefiles.
 
-See To use: above.
+See "To use": above.
